@@ -10,13 +10,7 @@ class VideoPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'Python Programming',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        title: const Text('Python Programming', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold,),),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -25,14 +19,7 @@ class VideoPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-            const Text(
-              'Video Tutorial',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
+            const Text('Video Tutorial', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black,),),
             const SizedBox(height: 30),
             Container(
               padding: const EdgeInsets.all(16),
@@ -43,38 +30,18 @@ class VideoPage extends StatelessWidget {
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Introduction and Setup',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  Text('Introduction and Setup', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
                   SizedBox(height: 8),
-                  Text(
-                    'Duration: 12:30',
-                    style: TextStyle(
-                      color: Colors.grey,
-                    ),
-                  ),
+                  Text('Duration: 12:30', style: TextStyle(color: Colors.grey,),),
                 ],
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Introduction and Setup',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            const Text('Introduction and Setup', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,),),
             const SizedBox(height: 8),
             const Text(
               'Learn the fundamentals and build a strong foundation for this course.',
-              style: TextStyle(
-                color: Colors.grey,
-              ),
-            ),
+              style: TextStyle(color: Colors.grey,),),
             const SizedBox(height: 20),
             Row(
               children: [
@@ -86,24 +53,12 @@ class VideoPage extends StatelessWidget {
                     color: Colors.blue[50],
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: const Text(
-                    '2 of 6 lessons',
-                    style: TextStyle(
-                      color: Colors.blue,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: const Text('2 of 6 lessons', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold,),),
                 ),
               ],
             ),
             const SizedBox(height: 30),
-            const Text(
-              'Course Lessons',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            const Text('Course Lessons', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
             const SizedBox(height: 16),
             _buildLessonItem('Lesson 1', 'Introduction and Setup', '12:30'),
             _buildLessonItem('Lesson 2', 'Basic Concepts', '18:45'),
@@ -129,27 +84,12 @@ class VideoPage extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                lessonNumber,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              Text(lessonNumber, style: const TextStyle(fontWeight: FontWeight.bold,),),
               const SizedBox(height: 4),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                ),
-              ),
+              Text(title, style: const TextStyle(fontSize: 16,),),
             ],
           ),
-          Text(
-            duration,
-            style: const TextStyle(
-              color: Colors.grey,
-            ),
-          ),
+          Text(duration, style: const TextStyle(color: Colors.grey,),),
         ],
       ),
     );

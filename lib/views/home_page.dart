@@ -1,4 +1,8 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+
+
 import '../widgets/appBar.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/gradient_background.dart';
@@ -65,11 +69,11 @@ class _HomePageState extends State<HomePage> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            // 🔍 Search Bar
+            //  Search Bar
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withAlpha(25),
                 borderRadius: BorderRadius.circular(30),
               ),
               child: TextField(
@@ -113,7 +117,7 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 20),
 
-            // 📚 Course List
+            //  Course List
             if (filteredCourses.isEmpty)
               const Center(
                 child: Padding(
@@ -138,11 +142,11 @@ class _HomePageState extends State<HomePage> {
       child: Container(
         margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.25),
+              color: Colors.black.withAlpha(51),
               blurRadius: 10,
               spreadRadius: 2,
             ),
@@ -170,12 +174,12 @@ class _HomePageState extends State<HomePage> {
                     style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white),
+                        color: Colors.black),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     course['description'],
-                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+                    style: const TextStyle(color: Colors.black, fontSize: 14),
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -184,21 +188,21 @@ class _HomePageState extends State<HomePage> {
                       Row(
                         children: [
                           const Icon(Icons.menu_book,
-                              color: Colors.white70, size: 18),
+                              color: Colors.indigoAccent, size: 18),
                           const SizedBox(width: 5),
                           Text(course['lessons'],
                               style:
-                              const TextStyle(color: Colors.white70)),
+                              const TextStyle(color: Colors.black)),
                         ],
                       ),
                       Row(
                         children: [
                           const Icon(Icons.access_time,
-                              color: Colors.white70, size: 18),
+                              color: Colors.green, size: 18),
                           const SizedBox(width: 5),
                           Text(course['duration'],
                               style:
-                              const TextStyle(color: Colors.white70)),
+                              const TextStyle(color: Colors.green)),
                         ],
                       ),
                     ],
@@ -212,63 +216,95 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+
   void _showLearningFormatDialog(BuildContext context, String courseTitle) {
     showDialog(
       context: context,
+      barrierColor: Colors.black.withAlpha(51), // semi-transparent background
       builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20)),
-          title: const Text(
-            'Choose Learning Format',
-          ),
-          content: Text(courseTitle),
-          actionsAlignment: MainAxisAlignment.center,
-          actions: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const VideoPage()),
-                    );
-                  },
-                  icon: const Icon(Icons.play_circle_fill),
-                  label: const Text("Video"),
-                ),
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purpleAccent,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const WebPage()),
-                    );
-                  },
-                  icon: const Icon(Icons.language),
-                  label: const Text("Webpage"),
-                ),
-              ],
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6), // blur background
+          child: AlertDialog(
+            backgroundColor: Colors.grey.withAlpha(140),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+              side: const BorderSide(
+                color: Colors.white,
+                width: 3,
+              ),
             ),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
-            )
-          ],
+            title: const Text(
+              'Choose Learning Format',
+              style: TextStyle(
+                color: Colors.cyanAccent,
+                fontWeight: FontWeight.bold,
+                fontSize: 25,
+              ),
+            ),
+            content: Text(
+              courseTitle,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+            actionsAlignment: MainAxisAlignment.center,
+            actions: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purpleAccent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: const BorderSide(
+                          color: Colors.white,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const VideoPage()),);
+                    },
+                    icon: const Icon(Icons.play_circle_fill, size: 30, color: Colors.white,),
+                    label: const Text("Video", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600,),),
+                  ),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purpleAccent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: const BorderSide(
+                          color: Colors.white,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const WebPage()),
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.language, size: 30, color: Colors.white,),
+                    label: const Text("Webpage", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600,),),
+                  ),
+                ],
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Cancel", style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 16,
+                ),
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
   }
+
 }
