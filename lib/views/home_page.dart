@@ -1,8 +1,8 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
-
+import '../models/course_model.dart';
+import '../utils/courses_data.dart';
 import '../widgets/appBar.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/gradient_background.dart';
@@ -11,8 +11,7 @@ import '../widgets/web_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
-
-  static const String name = "home- page";
+  static const String name = "home-page";
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -22,43 +21,10 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
   String searchQuery = '';
 
-  final List<Map<String, dynamic>> courses = const [
-    {
-      'title': 'Flutter Development',
-      'description':
-      'Build beautiful cross-platform mobile apps with Flutter and Dart',
-      'lessons': '42 lessons',
-      'duration': '12 hours',
-      'image':
-      'https://i.ytimg.com/vi/CzRQ9mnmh44/maxresdefault.jpg'
-    },
-    {
-      'title': 'Python Programming',
-      'description':
-      'Master Python from basics to advanced concepts and build real projects',
-      'lessons': '38 lessons',
-      'duration': '10 hours',
-      'image':
-      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAVs3_JJYZ0OYWfWS-YJjWnytd7sUr_nTA6w&s'
-    },
-    {
-      'title': 'UI/UX Design',
-      'description':
-      'Learn user interface and experience design principles and tools',
-      'lessons': '28 lessons',
-      'duration': '8 hours',
-      'image':
-      'https://img.freepik.com/free-vector/gradient-ui-ux-background_23-2149052117.jpg?semt=ais_hybrid&w=740&q=80'
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
     final filteredCourses = courses
-        .where((course) => course['title']
-        .toString()
-        .toLowerCase()
-        .contains(searchQuery.toLowerCase()))
+        .where((course) => course.title.toLowerCase().contains(searchQuery.toLowerCase()))
         .toList();
 
     return Scaffold(
@@ -69,7 +35,7 @@ class _HomePageState extends State<HomePage> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            //  Search Bar
+            // Search Bar
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
@@ -104,11 +70,9 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 20),
-
             const Text(
               "Explore Courses",
-              style: TextStyle(
-                  fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
             ),
             const SizedBox(height: 8),
             const Text(
@@ -117,7 +81,7 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 20),
 
-            //  Course List
+            // Course List
             if (filteredCourses.isEmpty)
               const Center(
                 child: Padding(
@@ -136,9 +100,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildCourseCard(BuildContext context, Map<String, dynamic> course) {
+  Widget buildCourseCard(BuildContext context, Course course) {
     return GestureDetector(
-      onTap: () => _showLearningFormatDialog(context, course['title']),
+      onTap: () => _showLearningFormatDialog(context, course),
       child: Container(
         margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
@@ -159,10 +123,7 @@ class _HomePageState extends State<HomePage> {
             SizedBox(
               height: 180,
               width: double.infinity,
-              child: Image.network(
-                course['image'],
-                fit: BoxFit.cover,
-              ),
+              child: Image.network(course.image, fit: BoxFit.cover),
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -170,39 +131,27 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    course['title'],
-                    style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
+                    course.title,
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    course['description'],
-                    style: const TextStyle(color: Colors.black, fontSize: 14),
-                  ),
+                  Text(course.description, style: const TextStyle(color: Colors.black, fontSize: 14)),
                   const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.menu_book,
-                              color: Colors.indigoAccent, size: 18),
+                          const Icon(Icons.menu_book, color: Colors.indigoAccent, size: 18),
                           const SizedBox(width: 5),
-                          Text(course['lessons'],
-                              style:
-                              const TextStyle(color: Colors.black)),
+                          Text(course.lessons, style: const TextStyle(color: Colors.black)),
                         ],
                       ),
                       Row(
                         children: [
-                          const Icon(Icons.access_time,
-                              color: Colors.green, size: 18),
+                          const Icon(Icons.access_time, color: Colors.green, size: 18),
                           const SizedBox(width: 5),
-                          Text(course['duration'],
-                              style:
-                              const TextStyle(color: Colors.green)),
+                          Text(course.duration, style: const TextStyle(color: Colors.green)),
                         ],
                       ),
                     ],
@@ -216,89 +165,80 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
-  void _showLearningFormatDialog(BuildContext context, String courseTitle) {
+  void _showLearningFormatDialog(BuildContext context, Course course) {
     showDialog(
       context: context,
-      barrierColor: Colors.black.withAlpha(51), // semi-transparent background
+      barrierColor: Colors.black.withAlpha(51),
       builder: (BuildContext context) {
         return BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6), // blur background
+          filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
           child: AlertDialog(
             backgroundColor: Colors.grey.withAlpha(140),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
-              side: const BorderSide(
-                color: Colors.white,
-                width: 3,
-              ),
+              side: const BorderSide(color: Colors.white, width: 3),
             ),
             title: const Text(
               'Choose Learning Format',
-              style: TextStyle(
-                color: Colors.cyanAccent,
-                fontWeight: FontWeight.bold,
-                fontSize: 25,
-              ),
+              style: TextStyle(color: Colors.cyanAccent, fontWeight: FontWeight.bold, fontSize: 25),
             ),
             content: Text(
-              courseTitle,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
+              course.title,
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
             ),
             actionsAlignment: MainAxisAlignment.center,
             actions: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.purpleAccent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: const BorderSide(
-                          color: Colors.white,
-                          width: 2,
+              FittedBox(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.purpleAccent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: const BorderSide(color: Colors.white, width: 2),
                         ),
                       ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => VideoPage(title: course.title, videoUrls: course.videos),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.play_circle_fill, size: 30, color: Colors.white),
+                      label: const Text("Video", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
                     ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const VideoPage()),);
-                    },
-                    icon: const Icon(Icons.play_circle_fill, size: 30, color: Colors.white,),
-                    label: const Text("Video", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600,),),
-                  ),
-                  ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.purpleAccent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: const BorderSide(
-                          color: Colors.white,
-                          width: 2,
+                    const SizedBox(width: 5,),
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.purpleAccent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: const BorderSide(color: Colors.white, width: 2),
                         ),
                       ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => WebPage(title: course.title, webpageUrls: course.webpages),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.language, size: 30, color: Colors.white),
+                      label: const Text("Webpage", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
                     ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const WebPage()),
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.language, size: 30, color: Colors.white,),
-                    label: const Text("Webpage", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600,),),
-                  ),
-                ],
+                  ],
+                ),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text("Cancel", style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 16,
-                ),
-                ),
+                child: const Text("Cancel", style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 16)),
               ),
             ],
           ),
@@ -306,5 +246,4 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
-
 }

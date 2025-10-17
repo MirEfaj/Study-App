@@ -1,95 +1,209 @@
+// lib/widgets/video_page.dart
 import 'package:flutter/material.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class VideoPage extends StatelessWidget {
-  const VideoPage({super.key});
+/// VideoPage shows a large YouTube player at the top and a clickable
+/// list of videos below. When a lesson is selected, it highlights
+/// and the player loads & plays that video.
+///
+/// Expects a list of URLs (preferably YouTube links).
+class VideoPage extends StatefulWidget {
+  final String title;
+  final List<String> videoUrls;
+
+  const VideoPage({
+    super.key,
+    required this.title,
+    required this.videoUrls,
+  });
+
+  @override
+  State<VideoPage> createState() => _VideoPageState();
+}
+
+class _VideoPageState extends State<VideoPage> {
+  late YoutubePlayerController _ytController;
+  int _selectedIndex = 0; // index of currently selected video
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Ensure there is at least one url. If empty, we create a dummy controller.
+    final firstVideoId = _extractYoutubeId(widget.videoUrls.isNotEmpty ? widget.videoUrls[0] : '');
+    _ytController = YoutubePlayerController(
+      initialVideoId: firstVideoId ?? '',
+      flags: const YoutubePlayerFlags(
+        autoPlay: false,
+        mute: false,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _ytController.dispose();
+    super.dispose();
+  }
+
+  /// Try to extract YouTube video ID. Returns null if it's not a YouTube URL.
+  String? _extractYoutubeId(String url) {
+    try {
+      final id = YoutubePlayer.convertUrlToId(url);
+      return id;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// If the url is a YouTube link, load it into the player and play.
+  /// Otherwise, open it in external browser via url_launcher.
+  void _openVideoAtIndex(int index) async {
+    final url = widget.videoUrls[index];
+    final videoId = _extractYoutubeId(url);
+
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    if (videoId != null && videoId.isNotEmpty) {
+      // load new video ID (keeps same controller instance)
+      _ytController.load(videoId);
+      _ytController.play();
+    } else {
+      // fallback: open in browser if not YouTube
+      final uri = Uri.tryParse(url);
+      if (uri != null && await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        // show message
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Cannot open video URL')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    // top player area: show a placeholder if no youtube id
+    final firstId = _extractYoutubeId(widget.videoUrls.isNotEmpty ? widget.videoUrls[0] : '');
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text('Python Programming', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold,),),
+        title: Text(widget.title, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
-            const Text('Video Tutorial', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black,),),
-            const SizedBox(height: 30),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(8),
+      body: Column(
+        children: [
+          // video player container
+          Container(
+            color: Colors.black,
+            width: double.infinity,
+            height: 220,
+            child: firstId == null
+                ? // If first URL isn't YouTube, show a message
+            Center(
+              child: Text(
+                'No embeddable YouTube video found.\nTap a video below to open it.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white.withOpacity(0.9)),
               ),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Introduction and Setup', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
-                  SizedBox(height: 8),
-                  Text('Duration: 12:30', style: TextStyle(color: Colors.grey,),),
-                ],
-              ),
+            )
+                : YoutubePlayer(
+              controller: _ytController,
+              showVideoProgressIndicator: true,
+              progressIndicatorColor: Colors.redAccent,
+              onReady: () {
+                // nothing special; user will tap to play
+              },
             ),
-            const SizedBox(height: 20),
-            const Text('Introduction and Setup', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,),),
-            const SizedBox(height: 8),
-            const Text(
-              'Learn the fundamentals and build a strong foundation for this course.',
-              style: TextStyle(color: Colors.grey,),),
-            const SizedBox(height: 20),
-            Row(
+          ),
+
+          // course meta & progress can be placed here (optional)
+          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
               children: [
-                const Text('Course Progress'),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Colors.blue[50],
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Text('2 of 6 lessons', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold,),),
-                ),
+                const Text('Course Lessons', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Spacer(),
+                Text('${widget.videoUrls.length} lessons', style: const TextStyle(color: Colors.grey)),
               ],
             ),
-            const SizedBox(height: 30),
-            const Text('Course Lessons', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),),
-            const SizedBox(height: 16),
-            _buildLessonItem('Lesson 1', 'Introduction and Setup', '12:30'),
-            _buildLessonItem('Lesson 2', 'Basic Concepts', '18:45'),
-            _buildLessonItem('Lesson 3', 'Working with Components', '25:15'),
-            _buildLessonItem('Lesson 4', 'State Management', '22:10'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLessonItem(String lessonNumber, String title, String duration) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey[300]!),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(lessonNumber, style: const TextStyle(fontWeight: FontWeight.bold,),),
-              const SizedBox(height: 4),
-              Text(title, style: const TextStyle(fontSize: 16,),),
-            ],
           ),
-          Text(duration, style: const TextStyle(color: Colors.grey,),),
+          const SizedBox(height: 12),
+
+          // lesson list
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              itemCount: widget.videoUrls.length,
+              itemBuilder: (context, index) {
+                final url = widget.videoUrls[index];
+                final selected = index == _selectedIndex;
+
+                return GestureDetector(
+                  onTap: () => _openVideoAtIndex(index),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 220),
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: selected ? Colors.indigo.shade50 : Colors.white,
+                      border: Border.all(color: selected ? Colors.indigo : Colors.grey.shade300, width: selected ? 1.6 : 1),
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 6, offset: const Offset(0, 2))],
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: selected ? Colors.indigo : Colors.grey.shade200,
+                          ),
+                          child: Icon(Icons.play_arrow, color: selected ? Colors.white : Colors.black54),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Lesson ${index + 1}', style: TextStyle(fontWeight: FontWeight.bold, color: selected ? Colors.indigo : Colors.black87)),
+                              const SizedBox(height: 6),
+                              Text(
+                                url,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        if (selected)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.green.shade50,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Text('Playing', style: TextStyle(fontSize: 12, color: Colors.green)),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );
